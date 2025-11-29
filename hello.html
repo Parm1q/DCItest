@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Meine Cloud</title>
+  <style>
+    body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f0f0f0; }
+    header { background:#ff0033; color:white; padding:15px 30px; }
+    nav a { color:white; margin-right:20px; text-decoration:none; font-weight:Bold; }
+    .container { padding:20px 30px; }
+    .cards { display:flex; gap:20px; margin-bottom:30px; }
+    .card { background:white; padding:20px; border-radius:10px; flex:1; 
+            box-shadow:0 2px 5px rgba(0, 0, 0, 0.227); }
+    .card h2 { margin-top:0; }
+    .vm-section { margin-top:20px; }
+    label { display:inline-block; width:80px; }
+    input[type="text"] { padding:5px; }
+    button { padding:5px 12px; margin-left:5px; cursor:pointer; }
+    #log { margin-top:15px; font-size:0.9em; white-space:pre-line; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Meine cloud kontrolle</h1>
+  <nav>
+    <a href="#">Dashboard</a>
+    <a href="#">Dateien</a>
+    <a href="#">Einstellungen</a>
+    <a href="#">Logout</a>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="cards">
+    <div class="card">
+      <h2>Speicherübersicht</h2>
+      <p>Du hast 12 GB von 50 GB verwendet.</p>
+    </div>
+    <div class="card">
+      <h2>Letzte Dateien</h2>
+      <ul>
+        <li>bericht.pdf</li>
+        <li>foto.jpg</li>
+        <li>notizen.txt</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Aktivität</h2>
+      <p>Letzter Login: Heute um 10:12 Uhr</p>
+    </div>
+  </div>
+
+  <div class="card vm-section">
+    <h2>Rechner steuern</h2>
+    <div>
+      <label for="vmName">VM-Name:</label>
+      <input id="vmName" type="text" placeholder="z.B. vm-test01" />
+      <button onclick="sendCommand('start')">Start</button>
+      <button onclick="sendCommand('stop')">Stop</button>
+      <button onclick="sendCommand('status')">Status</button>
+    </div>
+    <div id="log"></div>
+  </div>
+</div>
+
+<script>
+async function sendCommand(action) {
+  const vmName = document.getElementById('vmName').value.trim();
+  const log = document.getElementById('log');
+
+  if (!vmName) {
+    log.textContent = 'Bitte VM-Name eingeben.';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/vm/' + action, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: vmName })
+    });
+    const data = await res.json();
+    log.textContent = data.message || JSON.stringify(data);
+  } catch (err) {
+    log.textContent = 'Fehler: ' + err.message;
+  }
+}
+</script>
+</body>
+</html>
